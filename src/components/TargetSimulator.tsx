@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Target, TrendingUp, AlertTriangle } from 'lucide-react';
 import type { SemesterData, UniversityModule } from '../types';
 import {
@@ -18,7 +19,7 @@ function formatTarget(exact: number | null): string {
   return `au moins ${exact.toFixed(2)}/20`;
 }
 
-export function TargetSimulator({ semester, module }: TargetSimulatorProps) {
+function TargetSimulatorInner({ semester, module }: TargetSimulatorProps) {
   const pending = findPendingElement(module);
   if (!pending) return null;
 
@@ -81,3 +82,5 @@ export function TargetSimulator({ semester, module }: TargetSimulatorProps) {
     </div>
   );
 }
+
+export const TargetSimulator = memo(TargetSimulatorInner);

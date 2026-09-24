@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { memo, useCallback, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { SemesterData, UniversityModule } from '../types';
 import { calculateModuleGrade, determineModuleStatus } from '../utils/calculations';
@@ -12,11 +11,11 @@ interface ModuleCardProps {
   module: UniversityModule;
   semesterAverage: number | null;
   hasEliminatoryFailureInSemester: boolean;
-  onScoreChange: (elementId: string, score: number | null) => void;
-  onWeightChange: (elementId: string, weight: number) => void;
+  onScoreChange: (moduleId: string, elementId: string, score: number | null) => void;
+  onWeightChange: (moduleId: string, elementId: string, weight: number) => void;
 }
 
-export function ModuleCard({
+function ModuleCardInner({
   semester,
   module,
   semesterAverage,
@@ -25,6 +24,15 @@ export function ModuleCard({
   onWeightChange,
 }: ModuleCardProps) {
   const [expanded, setExpanded] = useState(false);
+
+  const handleScoreChange = useCallback(
+    (elementId: string, score: number | null) => onScoreChange(module.id, elementId, score),
+    [onScoreChange, module.id],
+  );
+  const handleWeightChange = useCallback(
+    (elementId: string, weight: number) => onWeightChange(module.id, elementId, weight),
+    [onWeightChange, module.id],
+  );
 
   const grade = calculateModuleGrade(module);
   const status = determineModuleStatus(
@@ -71,50 +79,48 @@ export function ModuleCard({
               {grade === null ? '—' : grade.toFixed(2)}
             </span>
             <ModuleStatusPill status={status} />
-            <motion.span animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+            <span
+              className={`inline-flex transition-transform duration-200 ${
+                expanded ? 'rotate-180' : ''
+              }`}
+            >
               <ChevronDown size={18} style={{ color: 'var(--fg-muted)' }} />
-            </motion.span>
+            </span>
           </div>
         </button>
 
-        <AnimatePresence initial={false}>
-          {expanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden"
+        <div className={`valida-collapsible${expanded ? ' is-open' : ''}`}>
+          <div className="min-h-0 overflow-hidden">
+            <div
+              className="border-t px-4 pb-4 sm:px-5"
+              style={{ borderColor: 'var(--border)' }}
             >
-              <div
-                className="border-t px-4 pb-4 sm:px-5"
-                style={{ borderColor: 'var(--border)' }}
-              >
-                <div>
-                  {module.elements.map((element, index) => (
-                    <div
-                      key={element.id}
-                      style={index > 0 ? { borderTop: '1px solid var(--border)' } : undefined}
-                    >
-                      <ElementRow
-                        element={element}
-                        onScoreChange={(score) => onScoreChange(element.id, score)}
-                        onWeightChange={(weight) => onWeightChange(element.id, weight)}
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                {hasPending && (
-                  <div className="mt-1">
-                    <TargetSimulator semester={semester} module={module} />
+              <div>
+                {module.elements.map((element, index) => (
+                  <div
+                    key={element.id}
+                    style={index > 0 ? { borderTop: '1px solid var(--border)' } : undefined}
+                  >
+                    <ElementRow
+                      element={element}
+                      onScoreChange={handleScoreChange}
+                      onWeightChange={handleWeightChange}
+                    />
                   </div>
-                )}
+                ))}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+              {hasPending && (
+                <div className="mt-1">
+                  <TargetSimulator semester={semester} module={module} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+export const ModuleCard = memo(ModuleCardInner);

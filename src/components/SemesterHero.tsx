@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import type { SemesterData } from '../types';
 import {
@@ -7,7 +7,7 @@ import {
   getMention,
   semesterHasEliminatoryFailure,
 } from '../utils/calculations';
-import { GPAGauge } from './GPAGauge';
+import { GPAGauge, type GaugeTone } from './GPAGauge';
 import { StatusBadge, type SemesterStatusKind } from './StatusBadge';
 import { SummaryPills } from './SummaryPills';
 import { ThemeToggle } from './ThemeToggle';
@@ -27,37 +27,37 @@ function fireValidationConfetti() {
   });
 }
 
-export function SemesterHero({ semester }: { semester: SemesterData }) {
+export const SemesterHero = memo(function SemesterHero({ semester }: { semester: SemesterData }) {
   const { modules, settings, title } = semester;
 
-  const average = calculateSemesterAverage(modules);
-  const hasEliminatoryFailure = semesterHasEliminatoryFailure(modules, settings);
-
-  const statuses = modules.map((m) =>
-    determineModuleStatus(m, average, settings, hasEliminatoryFailure),
+  const average = useMemo(() => calculateSemesterAverage(modules), [modules]);
+  const hasEliminatoryFailure = useMemo(
+    () => semesterHasEliminatoryFailure(modules, settings),
+    [modules, settings],
   );
 
-  const isPending = statuses.includes('pending');
-  const counts = {
-    valide: statuses.filter((s) => s === 'valide').length,
-    compense: statuses.filter((s) => s === 'compense').length,
-    rattrapage: statuses.filter((s) => s === 'rattrapage' || s === 'elimine').length,
-  };
-
-  const overallStatus: SemesterStatusKind = isPending
-    ? 'incomplete'
-    : counts.rattrapage > 0
-      ? 'rattrapage'
-      : 'validated';
-
-  const gaugeTone =
-    overallStatus === 'validated'
-      ? 'valide'
-      : overallStatus === 'rattrapage'
+  const { counts, overallStatus, gaugeTone } = useMemo(() => {
+    const list = modules.map((m) =>
+      determineModuleStatus(m, average, settings, hasEliminatoryFailure),
+    );
+    const pending = list.includes('pending');
+    const tally = {
+      valide: list.filter((s) => s === 'valide').length,
+      compense: list.filter((s) => s === 'compense').length,
+      rattrapage: list.filter((s) => s === 'rattrapage' || s === 'elimine').length,
+    };
+    const status: SemesterStatusKind = pending
+      ? 'incomplete'
+      : tally.rattrapage > 0
         ? 'rattrapage'
-        : 'stamp';
+        : 'validated';
+    const tone: GaugeTone =
+      status === 'validated' ? 'valide' : status === 'rattrapage' ? 'rattrapage' : 'stamp';
+    return { counts: tally, overallStatus: status, gaugeTone: tone };
+  }, [modules, settings, average, hasEliminatoryFailure]);
 
-  const mention = average !== null && overallStatus === 'validated' ? getMention(average) : null;
+  const mention =
+    average !== null && overallStatus === 'validated' ? getMention(average) : null;
 
   const previousStatus = useRef<SemesterStatusKind | null>(null);
   useEffect(() => {
@@ -99,4 +99,4 @@ export function SemesterHero({ semester }: { semester: SemesterData }) {
       </div>
     </section>
   );
-}
+});

@@ -39,6 +39,24 @@ export interface SemesterData {
   modules: UniversityModule[];
 }
 
+/** A named bundle of academic rules (thresholds + compensation policy). */
+export interface FacultyPreset {
+  id: string;
+  name: string;
+  description: string;
+  settings: SemesterSettings;
+}
+
+/** A ready-made semester structure the user can start a session from. */
+export interface SemesterTemplate {
+  id: string;
+  name: string;
+  description: string;
+  /** Preset applied to the semester's settings when the template is loaded. */
+  presetId: string;
+  build: () => SemesterData;
+}
+
 /** Aggregate counts used by the hero dashboard's summary pills. */
 export interface SemesterSummary {
   average: number | null;

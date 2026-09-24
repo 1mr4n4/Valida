@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ModuleStatus } from '../types';
 
 const CONFIG: Record<ModuleStatus, { label: string; fg: string; bg: string }> = {
@@ -16,7 +17,7 @@ const CONFIG: Record<ModuleStatus, { label: string; fg: string; bg: string }> = 
   pending: { label: 'En attente', fg: 'var(--fg-muted)', bg: 'var(--bg-panel-dim)' },
 };
 
-export function ModuleStatusPill({ status }: { status: ModuleStatus }) {
+export const ModuleStatusPill = memo(function ModuleStatusPill({ status }: { status: ModuleStatus }) {
   const { label, fg, bg } = CONFIG[status];
   return (
     <span
@@ -26,7 +27,7 @@ export function ModuleStatusPill({ status }: { status: ModuleStatus }) {
       {label}
     </span>
   );
-}
+});
 
 /** The color used for a module card's left margin-mark accent bar. */
 export function statusAccentColor(status: ModuleStatus): string {

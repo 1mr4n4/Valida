@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 interface SummaryPillsProps {
   valide: number;
   compense: number;
@@ -10,7 +12,7 @@ const PILLS: Array<{ key: keyof SummaryPillsProps; label: string; color: string 
   { key: 'rattrapage', label: 'en rattrapage', color: 'var(--color-rattrapage)' },
 ];
 
-export function SummaryPills(props: SummaryPillsProps) {
+export const SummaryPills = memo(function SummaryPills(props: SummaryPillsProps) {
   return (
     <div className="flex flex-wrap gap-2.5">
       {PILLS.map(({ key, label, color }) => (
@@ -30,4 +32,4 @@ export function SummaryPills(props: SummaryPillsProps) {
       ))}
     </div>
   );
-}
+});

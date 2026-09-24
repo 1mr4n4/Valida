@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { animate } from 'framer-motion';
+import { memo } from 'react';
+import { useTweenedValue } from '../hooks/useTweenedValue';
 
-type GaugeTone = 'stamp' | 'valide' | 'compense' | 'rattrapage';
+export type GaugeTone = 'stamp' | 'valide' | 'compense' | 'rattrapage';
 
 interface GPAGaugeProps {
   average: number | null;
@@ -23,24 +23,16 @@ const TONE_COLORS: Record<GaugeTone, string> = {
  * smoothly whenever `average` changes — the one deliberate non-interactive
  * motion moment on the dashboard.
  */
-export function GPAGauge({ average, maxScale = 20, tone, size = 200 }: GPAGaugeProps) {
-  const [displayValue, setDisplayValue] = useState(0);
+export const GPAGauge = memo(function GPAGauge({
+  average,
+  maxScale = 20,
+  tone,
+  size = 200,
+}: GPAGaugeProps) {
+  const displayValue = useTweenedValue(average ?? 0);
   const strokeWidth = size * 0.06;
   const radius = size / 2 - strokeWidth;
   const circumference = 2 * Math.PI * radius;
-  const previousAverage = useRef(0);
-
-  useEffect(() => {
-    const from = previousAverage.current;
-    const to = average ?? 0;
-    const controls = animate(from, to, {
-      duration: 1.1,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate: (value) => setDisplayValue(value),
-    });
-    previousAverage.current = to;
-    return () => controls.stop();
-  }, [average]);
 
   const fraction = average === null ? 0 : Math.min(1, Math.max(0, average / maxScale));
   const dashOffset = circumference * (1 - fraction);
@@ -89,4 +81,4 @@ export function GPAGauge({ average, maxScale = 20, tone, size = 200 }: GPAGaugeP
       </div>
     </div>
   );
-}
+});

@@ -105,6 +105,26 @@ input[type="range"].valida-slider::-moz-range-thumb {
   cursor: grab;
 }
 
+/* Expand/collapse a module's details: `0fr → 1fr` animates the height while
+   `visibility` is delayed so the content leaves the tab order only once the
+   panel has finished closing. */
+.valida-collapsible {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.22s;
+}
+
+.valida-collapsible.is-open {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;

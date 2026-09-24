@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { CheckCircle2, AlertTriangle, Hourglass } from 'lucide-react';
 
 export type SemesterStatusKind = 'validated' | 'rattrapage' | 'incomplete';
@@ -26,7 +27,7 @@ const CONFIG: Record<
   },
 };
 
-export function StatusBadge({ status }: { status: SemesterStatusKind }) {
+export const StatusBadge = memo(function StatusBadge({ status }: { status: SemesterStatusKind }) {
   const { label, icon: Icon, fg, bg } = CONFIG[status];
   return (
     <span
@@ -37,4 +38,4 @@ export function StatusBadge({ status }: { status: SemesterStatusKind }) {
       {label}
     </span>
   );
-}
+});

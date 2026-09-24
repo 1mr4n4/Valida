@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import type { SemesterData } from '../types';
 import { calculateSemesterAverage, semesterHasEliminatoryFailure } from '../utils/calculations';
 import { ModuleCard } from './ModuleCard';
@@ -8,26 +9,31 @@ interface ModuleGridProps {
   onWeightChange: (moduleId: string, elementId: string, weight: number) => void;
 }
 
-export function ModuleGrid({ semester, onScoreChange, onWeightChange }: ModuleGridProps) {
-  const semesterAverage = calculateSemesterAverage(semester.modules);
-  const hasEliminatoryFailureInSemester = semesterHasEliminatoryFailure(
-    semester.modules,
-    semester.settings,
+export const ModuleGrid = memo(function ModuleGrid({
+  semester,
+  onScoreChange,
+  onWeightChange,
+}: ModuleGridProps) {
+  const { modules, settings } = semester;
+  const semesterAverage = useMemo(() => calculateSemesterAverage(modules), [modules]);
+  const hasEliminatoryFailureInSemester = useMemo(
+    () => semesterHasEliminatoryFailure(modules, settings),
+    [modules, settings],
   );
 
   return (
     <div className="mt-6 flex flex-col gap-3">
-      {semester.modules.map((module) => (
+      {modules.map((module) => (
         <ModuleCard
           key={module.id}
           semester={semester}
           module={module}
           semesterAverage={semesterAverage}
           hasEliminatoryFailureInSemester={hasEliminatoryFailureInSemester}
-          onScoreChange={(elementId, score) => onScoreChange(module.id, elementId, score)}
-          onWeightChange={(elementId, weight) => onWeightChange(module.id, elementId, weight)}
+          onScoreChange={onScoreChange}
+          onWeightChange={onWeightChange}
         />
       ))}
     </div>
   );
-}
+});
