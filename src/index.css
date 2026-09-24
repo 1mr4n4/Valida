@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: #f6f4ee;
+  --color-paper-dim: #ece8dd;
+  --color-ink: #14171c;
+  --color-ink-dim: #1b1f26;
+
+  --color-stamp: #2e4c6d;
+  --color-stamp-light: #4a6f96;
+
+  --color-valide: #3b7a3e;
+  --color-valide-soft: #e3ede2;
+  --color-compense: #b8862b;
+  --color-compense-soft: #f3ead5;
+  --color-rattrapage: #a8342e;
+  --color-rattrapage-soft: #f3e0dd;
+}
+
+:root {
+  --bg: var(--color-paper);
+  --bg-panel: #ffffff;
+  --bg-panel-dim: var(--color-paper-dim);
+  --fg: var(--color-ink);
+  --fg-muted: #5c5952;
+  --border: #ddd8cb;
+  --border-strong: #14171c;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: var(--color-ink);
+  --bg-panel: var(--color-ink-dim);
+  --bg-panel-dim: #23272f;
+  --fg: #f2efe6;
+  --fg-muted: #a19c8f;
+  --border: #313640;
+  --border-strong: #f2efe6;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background-color: var(--color-stamp);
+  color: var(--color-paper);
+}
+
+/* Custom slider thumb for the final-exam simulator */
+input[type="range"].valida-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 999px;
+  outline: none;
+}
+
+input[type="range"].valida-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 2.5px solid var(--color-stamp);
+  cursor: grab;
+  transition: transform 0.12s ease;
+}
+
+input[type="range"].valida-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+input[type="range"].valida-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-panel);
+  border: 2.5px solid var(--color-stamp);
+  cursor: grab;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
